@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import org.springframework.validation.annotation.Validated;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
@@ -14,12 +14,12 @@ public class FilmController {
     private final InMemoryStorageCRUD<Film> filmStorage = new InMemoryFilmStorage();
 
     @PostMapping
-    public Film createFilm(@Validated @RequestBody Film film) {
+    public Film createFilm(@Valid @RequestBody Film film) {
         return filmStorage.createEntityInStorage(film);
     }
 
     @PutMapping
-    public Film updateFilm(@Validated @RequestBody Film film) {
+    public Film updateFilm(@Valid @RequestBody Film film) {
         return filmStorage.updateEntityInStorage(film);
     }
 

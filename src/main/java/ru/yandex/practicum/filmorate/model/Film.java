@@ -15,13 +15,13 @@ import java.time.LocalDate;
 @Builder
 @AllArgsConstructor
 public class Film {
-    public Long id;
+    private Long id;
     @NotBlank(message = "Specify name field for the film")
-    public String name;
+    private String name;
     @Size(message = "Description sould be less then 200 chars length", max = 200)
-    public String description;
+    private String description;
     @FilmDate(message = "Film date should be after 28.12.1985")
-    public LocalDate releaseDate;
+    private LocalDate releaseDate;
     @FilmDuration
-    public Duration duration;
+    private Duration duration;
 }

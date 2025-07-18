@@ -11,13 +11,13 @@ import java.time.LocalDate;
 @Builder
 @AllArgsConstructor
 public class User {
-    Long id;
+    private Long id;
     @Email(message = "Email format is invalid")
-    String email;
+    private String email;
     @NotBlank(message = "Login can not be blank")
     @Pattern(regexp = "^\\S+$", message = "Login can not contain spaces")
-    String login;
-    String name;
+    private String login;
+    private String name;
     @PastOrPresent(message = "Birthday date can't be in future")
-    LocalDate birthday;
+    private LocalDate birthday;
 }
