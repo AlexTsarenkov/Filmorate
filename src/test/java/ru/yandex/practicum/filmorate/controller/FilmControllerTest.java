@@ -10,14 +10,16 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.InMemoryStorageCRUD;
 
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.HashSet;
 
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -27,6 +29,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class FilmControllerTest {
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private InMemoryStorageCRUD<Film> filmStorage;
+
+    @Autowired
+    private InMemoryStorageCRUD<User> userStorage;
 
     @Test
     void filmCreationOk() throws Exception {
@@ -148,7 +156,6 @@ class FilmControllerTest {
 
         content = result.getResponse().getContentAsString();
         Film updatedFilm = mapper.readValue(content, Film.class);
-
         Assertions.assertEquals("Updated film", updatedFilm.getName());
     }
 
@@ -173,4 +180,79 @@ class FilmControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    void filmLikeAndUnlikeIsOk() throws Exception {
+        Film film = Film.builder()
+                .id(123456789L)
+                .name("Test film")
+                .description("Test film description")
+                .releaseDate(LocalDate.of(1990, 9, 27))
+                .duration(Duration.ofMinutes(120))
+                .likes(new HashSet<>())
+                .build();
+
+        User user = User.builder()
+                .name("")
+                .email("john@doe.com")
+                .birthday(LocalDate.of(1990, 9, 27))
+                .login("JDoe")
+                .build();
+
+        Film createdFilm = filmStorage.createEntityInStorage(film);
+        User createdUser = userStorage.createEntityInStorage(user);
+        String url = String.format("/films/%d/like/%d", createdFilm.getId(), createdUser.getId());
+
+        this.mockMvc.perform(put(url))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        Film updatedFilm = filmStorage.readEntityFromStorage(createdFilm.getId());
+
+        Assertions.assertTrue(updatedFilm.getLikes().contains(createdUser.getId()));
+
+        this.mockMvc.perform(delete(url))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        Assertions.assertTrue(updatedFilm.getLikes().size() == 0);
+    }
+
+    @Test
+    void filmLikeUserNotFound() throws Exception {
+        Film film = Film.builder()
+                .id(123456789L)
+                .name("Test film")
+                .description("Test film description")
+                .releaseDate(LocalDate.of(1990, 9, 27))
+                .duration(Duration.ofMinutes(120))
+                .likes(new HashSet<>())
+                .build();
+
+
+        Film createdFilm = filmStorage.createEntityInStorage(film);
+
+        String url = String.format("/films/%d/like/1234567890", createdFilm.getId());
+
+        this.mockMvc.perform(put(url))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+
+    }
+
+    @Test
+    void filmLikeFilmNotFound() throws Exception {
+        User user = User.builder()
+                .name("")
+                .email("john@doe.com")
+                .birthday(LocalDate.of(1990, 9, 27))
+                .login("JDoe")
+                .build();
+
+        User createdUser = userStorage.createEntityInStorage(user);
+        String url = String.format("/films/1234567890/like/%d", createdUser.getId());
+
+        this.mockMvc.perform(put(url))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
 }

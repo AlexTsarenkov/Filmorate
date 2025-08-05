@@ -10,11 +10,12 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.InMemoryStorageCRUD;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -24,6 +25,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class UserControllerTest {
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private InMemoryStorageCRUD<User> userStorage;
 
     @Test
     void userCreationOk() throws Exception {
@@ -214,6 +218,82 @@ class UserControllerTest {
         this.mockMvc.perform(put("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonString))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void userAddAndRemoveFriendIsOk() throws Exception {
+        User userOne = User.builder()
+                .name("")
+                .email("john@doe.com")
+                .birthday(LocalDate.of(1990, 9, 27))
+                .login("JDoe")
+                .friends(new HashSet<>())
+                .build();
+
+        User userTwo = User.builder()
+                .name("")
+                .email("sam@doe.com")
+                .birthday(LocalDate.of(1990, 9, 27))
+                .login("SDoe")
+                .friends(new HashSet<>())
+                .build();
+
+        User createdUserOne = userStorage.createEntityInStorage(userOne);
+        User createdUserTwo = userStorage.createEntityInStorage(userTwo);
+        String uri = String.format("/users/%s/friends/%s", createdUserOne.getId(), createdUserTwo.getId());
+        this.mockMvc.perform(put(uri))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        createdUserOne = userStorage.readEntityFromStorage(createdUserOne.getId());
+        createdUserTwo = userStorage.readEntityFromStorage(createdUserTwo.getId());
+
+        Assert.assertTrue(createdUserOne.getFriends().contains(createdUserTwo.getId()));
+        Assert.assertTrue(createdUserTwo.getFriends().contains(createdUserOne.getId()));
+
+        uri = String.format("/users/%s/friends/%s", createdUserOne.getId(), createdUserTwo.getId());
+        this.mockMvc.perform(delete(uri))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        Assert.assertTrue(createdUserOne.getFriends().size() == 0);
+        Assert.assertTrue(createdUserTwo.getFriends().size() == 0);
+    }
+
+    @Test
+    void userAddFriendNotFound() throws Exception {
+        User userOne = User.builder()
+                .name("")
+                .email("john@doe.com")
+                .birthday(LocalDate.of(1990, 9, 27))
+                .login("JDoe")
+                .friends(new HashSet<>())
+                .build();
+
+        User createdUserOne = userStorage.createEntityInStorage(userOne);
+
+        String uri = String.format("/users/%s/friends/1234567890", createdUserOne.getId());
+        this.mockMvc.perform(put(uri))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void userDeleteFriendNotFound() throws Exception {
+        User userOne = User.builder()
+                .name("")
+                .email("john@doe.com")
+                .birthday(LocalDate.of(1990, 9, 27))
+                .login("JDoe")
+                .friends(new HashSet<>())
+                .build();
+
+        User createdUserOne = userStorage.createEntityInStorage(userOne);
+
+        String uri = String.format("/users/%s/friends/1234567890", createdUserOne.getId());
+        this.mockMvc.perform(delete(uri))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }

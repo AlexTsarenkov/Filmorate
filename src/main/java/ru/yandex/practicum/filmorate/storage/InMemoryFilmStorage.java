@@ -1,16 +1,16 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.utility.Utility;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
+@Component
 public class InMemoryFilmStorage implements InMemoryStorageCRUD<Film> {
     private final Map<Long, Film> filmStorage;
 
@@ -20,7 +20,7 @@ public class InMemoryFilmStorage implements InMemoryStorageCRUD<Film> {
 
     @Override
     public Film createEntityInStorage(Film entity) {
-        Long id = Math.abs(UUID.randomUUID().getMostSignificantBits());
+        Long id = Utility.getIdForEntity();
 
         Film toCreate = Film.builder()
                 .id(id)
@@ -28,6 +28,7 @@ public class InMemoryFilmStorage implements InMemoryStorageCRUD<Film> {
                 .description(entity.getDescription())
                 .releaseDate(entity.getReleaseDate())
                 .duration(entity.getDuration())
+                .likes(new HashSet<>())
                 .build();
         filmStorage.put(id, toCreate);
         log.info("Film created: {}", toCreate);
@@ -62,6 +63,7 @@ public class InMemoryFilmStorage implements InMemoryStorageCRUD<Film> {
                     .description(entity.getDescription())
                     .releaseDate(entity.getReleaseDate())
                     .duration(entity.getDuration())
+                    .likes(entity.getLikes())
                     .build();
             filmStorage.put(entity.getId(), toUpdate);
             log.info("Film updated: {}", toUpdate);
