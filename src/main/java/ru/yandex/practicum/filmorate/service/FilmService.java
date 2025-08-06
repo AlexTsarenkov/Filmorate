@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.InMemoryStorageCRUD;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -27,23 +28,13 @@ public class FilmService {
     }
 
     public List<Film> getTopRatedFilms(int count) {
-        List<Film> topRatedFilms = new ArrayList<>();
-
         Comparator<Film> comparator = Comparator.comparing(film -> film.getLikes().size(),
                 Comparator.reverseOrder());
 
-        Set<Film> sortedSet = new TreeSet<>(comparator);
-        sortedSet.addAll(filmStorage.readAllEntityFromStorage());
-
-        int counter = 0;
-        for (Film film : sortedSet) {
-            if (counter < count) {
-                topRatedFilms.add(film);
-                counter++;
-            }
-        }
-
-        return topRatedFilms;
+        return filmStorage.readAllEntityFromStorage().stream()
+                .sorted(comparator)
+                .limit(count)
+                .collect(Collectors.toList());
     }
 
     public Film getFilmById(Long filmId) {

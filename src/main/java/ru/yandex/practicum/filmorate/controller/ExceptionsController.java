@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,19 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 @Slf4j
 public class ExceptionsController {
+    @ExceptionHandler(ConstraintViolationException.class)
+    public @ResponseBody ResponseEntity<ExceptionDto> handleConstraintViolationEx(HttpServletRequest req,
+                                                                                  ConstraintViolationException ex) {
+        String msg = ex.getMessage();
+        ExceptionDto exDto = ExceptionDto.builder()
+                .url(req.getRequestURI())
+                .message(msg)
+                .timestamp(LocalDateTime.now())
+                .statusCode(HttpStatus.BAD_REQUEST)
+                .build();
+        log.error(msg);
+        return new ResponseEntity<>(exDto, HttpStatus.BAD_REQUEST);
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public @ResponseBody ResponseEntity<ExceptionDto> validationError(HttpServletRequest req,

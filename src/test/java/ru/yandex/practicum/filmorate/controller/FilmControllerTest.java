@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -37,6 +38,7 @@ class FilmControllerTest {
     private InMemoryStorageCRUD<User> userStorage;
 
     @Test
+    @DisplayName("Film creation - ok scenario")
     void filmCreationOk() throws Exception {
         Film film = Film.builder()
                 .name("Test film")
@@ -58,6 +60,7 @@ class FilmControllerTest {
     }
 
     @Test
+    @DisplayName("Film creation - empty film name")
     void filmCreationEmptyName() throws Exception {
         Film film = Film.builder()
                 .name("")
@@ -79,6 +82,7 @@ class FilmControllerTest {
     }
 
     @Test
+    @DisplayName("Film creation - date not valid")
     void filmCreationWrongDate() throws Exception {
         Film film = Film.builder()
                 .name("Test")
@@ -100,6 +104,7 @@ class FilmControllerTest {
     }
 
     @Test
+    @DisplayName("Film creation - duration not valid")
     void filmCreationWrongDuration() throws Exception {
         Film film = Film.builder()
                 .name("Test")
@@ -121,6 +126,7 @@ class FilmControllerTest {
     }
 
     @Test
+    @DisplayName("Film update - ok scenario")
     void filmUpdateIsOk() throws Exception {
         Film film = Film.builder()
                 .name("Test film")
@@ -160,6 +166,7 @@ class FilmControllerTest {
     }
 
     @Test
+    @DisplayName("Film creation - film not found")
     void filmUpdateNotFound() throws Exception {
         Film film = Film.builder()
                 .id(123456789L)
@@ -181,6 +188,7 @@ class FilmControllerTest {
     }
 
     @Test
+    @DisplayName("Film like and unlike - ok scenario")
     void filmLikeAndUnlikeIsOk() throws Exception {
         Film film = Film.builder()
                 .id(123456789L)
@@ -218,6 +226,7 @@ class FilmControllerTest {
     }
 
     @Test
+    @DisplayName("Film like and unlike - user not found")
     void filmLikeUserNotFound() throws Exception {
         Film film = Film.builder()
                 .id(123456789L)
@@ -240,6 +249,7 @@ class FilmControllerTest {
     }
 
     @Test
+    @DisplayName("Film like and unlike - film not found")
     void filmLikeFilmNotFound() throws Exception {
         User user = User.builder()
                 .name("")

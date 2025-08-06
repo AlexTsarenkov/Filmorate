@@ -32,31 +32,13 @@ public class UserService {
     }
 
     public void addFriend(Long userId, Long friendId) {
-        User user = userStorage.readEntityFromStorage(userId);
-        User friend = userStorage.readEntityFromStorage(friendId);
-
-        Set<Long> userFriends = user.getFriends();
-        Set<Long> friendFriends = friend.getFriends();
-
-        userFriends.add(friendId);
-        friendFriends.add(userId);
-
-        userStorage.updateEntityInStorage(user);
-        userStorage.updateEntityInStorage(friend);
+        userStorage.readEntityFromStorage(userId).getFriends().add(friendId);
+        userStorage.readEntityFromStorage(friendId).getFriends().add(userId);
     }
 
     public void removeFriend(Long userId, Long friendId) {
-        User user = userStorage.readEntityFromStorage(userId);
-        User friend = userStorage.readEntityFromStorage(friendId);
-
-        Set<Long> userFriends = user.getFriends();
-        Set<Long> friendFriends = friend.getFriends();
-
-        userFriends.remove(friendId);
-        friendFriends.remove(userId);
-
-        userStorage.updateEntityInStorage(user);
-        userStorage.updateEntityInStorage(friend);
+       userStorage.readEntityFromStorage(userId).getFriends().remove(friendId);
+       userStorage.readEntityFromStorage(friendId).getFriends().remove(userId);
     }
 
     public List<User> getCommonFriends(Long userId, Long otherUserId) {

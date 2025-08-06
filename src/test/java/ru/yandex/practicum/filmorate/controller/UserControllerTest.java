@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Assert;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -30,6 +31,7 @@ class UserControllerTest {
     private InMemoryStorageCRUD<User> userStorage;
 
     @Test
+    @DisplayName("User creation - ok scenario")
     void userCreationOk() throws Exception {
         User user = User.builder()
                 .name("John Doe")
@@ -51,6 +53,7 @@ class UserControllerTest {
     }
 
     @Test
+    @DisplayName("User creation - empty login")
     void userCreationEmptyLogin() throws Exception {
         User user = User.builder()
                 .name("John Doe")
@@ -72,6 +75,7 @@ class UserControllerTest {
     }
 
     @Test
+    @DisplayName("User creation - wrong email")
     void userCreationWrongEmail() throws Exception {
         User user = User.builder()
                 .name("John Doe")
@@ -93,6 +97,7 @@ class UserControllerTest {
     }
 
     @Test
+    @DisplayName("User creation - login wrong pattern")
     void userCreationSpaceInLogin() throws Exception {
         User user = User.builder()
                 .name("John Doe")
@@ -114,6 +119,7 @@ class UserControllerTest {
     }
 
     @Test
+    @DisplayName("User creation - birthday in future")
     void userCreationBirthdateInFuture() throws Exception {
         User user = User.builder()
                 .name("John Doe")
@@ -135,6 +141,7 @@ class UserControllerTest {
     }
 
     @Test
+    @DisplayName("User creation - empty name")
     void userEmptyName() throws Exception {
         User user = User.builder()
                 .name("")
@@ -162,6 +169,7 @@ class UserControllerTest {
     }
 
     @Test
+    @DisplayName("User update - ok scenario")
     void updateIsOk() throws Exception {
         User user = User.builder()
                 .name("")
@@ -202,6 +210,7 @@ class UserControllerTest {
     }
 
     @Test
+    @DisplayName("User update - user not found")
     void updateNotFound() throws Exception {
         User user = User.builder()
                 .id(12345L)
@@ -223,6 +232,7 @@ class UserControllerTest {
     }
 
     @Test
+    @DisplayName("User friends - add and remove is ok")
     void userAddAndRemoveFriendIsOk() throws Exception {
         User userOne = User.builder()
                 .name("")
@@ -263,6 +273,7 @@ class UserControllerTest {
     }
 
     @Test
+    @DisplayName("User friends - user not found")
     void userAddFriendNotFound() throws Exception {
         User userOne = User.builder()
                 .name("")
@@ -281,6 +292,7 @@ class UserControllerTest {
     }
 
     @Test
+    @DisplayName("User friends remove - user not found")
     void userDeleteFriendNotFound() throws Exception {
         User userOne = User.builder()
                 .name("")
