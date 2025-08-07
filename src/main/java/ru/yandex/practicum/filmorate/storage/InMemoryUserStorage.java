@@ -1,16 +1,17 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.utility.Utility;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
+@Component
 public class InMemoryUserStorage implements InMemoryStorageCRUD<User> {
     private final Map<Long, User> userStorage;
 
@@ -20,7 +21,8 @@ public class InMemoryUserStorage implements InMemoryStorageCRUD<User> {
 
     @Override
     public User createEntityInStorage(User entity) {
-        Long id = Math.abs(UUID.randomUUID().getMostSignificantBits());
+
+        Long id = Utility.getIdForEntity();
 
         User toCreate = User.builder()
                 .id(id)
@@ -28,6 +30,7 @@ public class InMemoryUserStorage implements InMemoryStorageCRUD<User> {
                 .email(entity.getEmail())
                 .birthday(entity.getBirthday())
                 .name(entity.getName() == null || entity.getName().isBlank() ? entity.getLogin() : entity.getName())
+                .friends(new HashSet<>())
                 .build();
         userStorage.put(id, toCreate);
         log.info("User created: {}", toCreate);
@@ -62,6 +65,7 @@ public class InMemoryUserStorage implements InMemoryStorageCRUD<User> {
                     .email(entity.getEmail())
                     .birthday(entity.getBirthday())
                     .name(entity.getName() == null || entity.getName().isBlank() ? entity.getLogin() : entity.getName())
+                    .friends(entity.getFriends())
                     .build();
             userStorage.put(entity.getId(), toUpdate);
             log.info("User updated: {}", toUpdate);
